@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple API Example</title>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <h1>Simple API Example</h1>
+
+    <h2>Add Item</h2>
+    <input type="text" id="newItem" placeholder="Enter item" />
+    <button onclick="addItem()">Add Item</button>
+
+
+    <h2>Items</h2>
+    <ul id="itemList"></ul>
+
+    <script>
+        async function fetchItems() {
+            const response = await fetch('/api/items');
+            const items = await response.json();
+            const itemList = document.getElementById('itemList');
+            itemList.innerHTML = items.map((item, index) => `<li>${item} <button onclick="deleteItem(${index})">Delete</button></li>`).join('');
+        }
+
+        async function addItem() {
+            const newItemInput = document.getElementById('newItem');
+            const newItem = newItemInput.value;
+
+            if (newItem) {
+                await fetch('/api/items', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newItem)
+                });
+                newItemInput.value = '';
+                fetchItems();
+            }
+        }
+
+        async function deleteItem(index) {
+            await fetch(`/api/items/${index}`, {
+                method: 'DELETE'
+            });
+            fetchItems();
+        }
+        fetchItems();
+    </script>
+</body>
+</html>
